@@ -1,79 +1,60 @@
 import RestaurantCard from "./RestaurantCard";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import resList from "../utils/mockData";
+import Shimmer from "./Shimmer";
+import { SWIGGY_URL_wORKING } from "../utils/constants";
 
 const Body = () => {
-    const [res, setRes] = useState(resList);
+  const [res, setRes] = useState([]);
+  const [filteredRestaurants, setFilteredRestaurants] = useState([]);
+  const [searchRes, setSearchRes] = useState("");
 
-    let listOfRestaurants = [
-        {data:{
-        type: "F",
-        id: "334475",
-        name: "KFC",
-        uuid: "eaed0e3b-7c0e-4367-8f59-f41d309fb93a",
-        city: "1",
-        area: "BTM Layout",
-        totalRatingsString: "500+ ratings",
-        cloudinaryImageId: "bdcd233971b7c81bf77e1fa4471280eb",
-        cuisines: ["Burgers", "Biryani", "American", "Snacks", "Fast Food"],
-        tags: [],
-        costForTwo: 40000,
-        avgRating: "3.8",
-        totalRatings: 500,
-        new: false,
-      }},
-      {data:{
-        type: "F",
-        id: "334476",
-        name: "McD",
-        uuid: "eaed0e3b-7c0e-4367-8f59-f41d309fb93a",
-        city: "1",
-        area: "BTM Layout",
-        totalRatingsString: "500+ ratings",
-        cloudinaryImageId: "bdcd233971b7c81bf77e1fa4471280eb",
-        cuisines: ["Burgers", "Biryani", "American", "Snacks", "Fast Food"],
-        tags: [],
-        costForTwo: 40000,
-        avgRating: "3.8",
-        totalRatings: 500,
-        new: false,
-      }},
-      {data:{
-        type: "F",
-        id: "334477",
-        name: "Domino",
-        uuid: "eaed0e3b-7c0e-4367-8f59-f41d309fb93a",
-        city: "1",
-        area: "BTM Layout",
-        totalRatingsString: "500+ ratings",
-        cloudinaryImageId: "bdcd233971b7c81bf77e1fa4471280eb",
-        cuisines: ["Burgers", "Biryani", "American", "Snacks", "Fast Food"],
-        tags: [],
-        costForTwo: 40000,
-        avgRating: "4.8",
-        totalRatings: 500,
-        new: false,
-      }}
-    ]
-  // Local State Variable - Super powerful variable
-//   const [listOfRestaurants, setListOfRestraunt] = useState(resList);
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-  return (
+
+
+  const fetchData = async () => {
+    let url = SWIGGY_URL_wORKING;
+    const data = await fetch(url);
+    const jsonData = await data.json();
+    // console.log(jsonData?.data?.cards[4]?.card?.card?.gridElements?.infoWithStyle?.restaurants);
+    const fetchedRes = jsonData?.data?.cards[4]?.card?.card?.gridElements?.infoWithStyle?.restaurants;
+    setRes(fetchedRes);
+    setFilteredRestaurants(fetchedRes);
+  }
+
+  // if (res.length === 0) {
+  //   return <Shimmer/>
+  // }
+
+  return (res.length === 0) ? <Shimmer /> : (
     <div className="body">
       <div className="filter">
+        <div className="search">
+          <input type="text" className="search-bar" value={searchRes} onChange={(e) => (setSearchRes(e.target.value))}></input>
+          <button 
+            onClick={() => {
+              const filteredSearchRequest = res.filter((restaurant) => restaurant?.info?.name?.toLowerCase().includes(searchRes.toLowerCase()));
+              setFilteredRestaurants(filteredSearchRequest);
+            }}  
+          >Search</button>
+        </div>
         <button className="filter-btn" 
-        onClick={() => 
-        {
-        const filteredRes = res.filter((restaurant) => (restaurant.data.avgRating > 4.3));
-        setRes(filteredRes)
-        }
-        }>
-            Top Rated Button
+          onClick={() => {
+            const filteredBasedOnRating = res.filter((restaurant) => (restaurant?.info?.avgRating > 4.3));
+            // console.log(res[0]?.info?.avgRating);
+            setFilteredRestaurants(filteredBasedOnRating);
+          }
+          }
+          >
+          Top Rated Button
         </button>
       </div>
       <div className="res-container">
-        {res.map((restaurant) => (
-          <RestaurantCard key={restaurant.data.id} resData={restaurant} />
+        {filteredRestaurants.map((restaurant) => (
+          <RestaurantCard key={restaurant?.info?.id} resData={restaurant} />
         ))}
       </div>
     </div>
