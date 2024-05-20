@@ -2,7 +2,7 @@ import RestaurantCard from "./RestaurantCard";
 import { useEffect, useState } from "react";
 import resList from "../utils/mockData";
 import Shimmer from "./Shimmer";
-import { SWIGGY_URL_wORKING } from "../utils/constants";
+import { SWIGGY_URL_BANGLORE, SWIGGY_URL_DELHI, SWIGGY_URL_MNNIT, CORS_PROXY_BYPASS_URL } from "../utils/constants";
 
 const Body = () => {
   const [res, setRes] = useState([]);
@@ -16,7 +16,7 @@ const Body = () => {
 
 
   const fetchData = async () => {
-    let url = SWIGGY_URL_wORKING;
+    let url = CORS_PROXY_BYPASS_URL + SWIGGY_URL_BANGLORE;
     const data = await fetch(url);
     const jsonData = await data.json();
     // console.log(jsonData?.data?.cards[4]?.card?.card?.gridElements?.infoWithStyle?.restaurants);
