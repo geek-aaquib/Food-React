@@ -1,48 +1,48 @@
-import React from "react";
+import React, { lazy, Suspense, useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import Header from "./components/Header";
 import Body from "./components/Body";
 import { RouterProvider, createBrowserRouter, Outlet } from "react-router-dom";
-import About from "./components/About";
-import ContactUs from "./components/ContactUs";
 import Error from "./components/Error";
 import RestaurantMenu from "./components/RestaurantMenu";
+import UserContext from "./utils/UserContext";
+import { Provider } from "react-redux";
+import appStore from "./utils/appStore";
+import Cart from "./components/Cart";
 
 
 // Created separate components files for every components
-// // Header component
-// const Header = () => {
-//     return (
-//     <div className = "header">
-//         <div className="logo">
-//             <img scr="https://i.pinimg.com/736x/65/f9/e5/65f9e51b368c5ec46145eb2eb7bdfb42.jpg"></img>
-//         </div>
-//         <div className="nav-items">
-
-//         </div>
-//     </div>
-// )
-// }
-
-// // Body Component
-// const Body = () => {
-//     return(<div className = "body">this is body</div>)
-// }
 
 
-// // Fooer Component
-// const Footer = () => {
-//     return(<div className="footer">This is footer</div>)
-// }
+// App Layout */
 
-// App Layout
+// LazyLoading
+const About = lazy(() => import("./components/About"));
+const ContactUs = lazy(() => import("./components/ContactUs"));
+
+
+
 const AppLayout = () => {
+    const [userName, setUserName] = useState();
+
+    // authentication logic
+    useEffect(() => {
+        const data = {
+            name: "Dummy User Damu"
+        }
+
+        setUserName(data.name);
+    }, []);
+
     return(
-    <div className="AppLayout">
-        <Header />
-        <Outlet />
-        {/* <Footer/> */}
-    </div>
+    <Provider store={appStore}>
+        <UserContext.Provider value={{loggedinUser: userName, setUserName}}>
+        <div className="AppLayout">
+            <Header />
+            <Outlet />
+        </div>
+        </UserContext.Provider>
+    </Provider>
     )
 }
 
@@ -58,21 +58,30 @@ const appRouter = createBrowserRouter([
             },
             {
                 path: "/about",
-                element: <About/>,
+                element: (
+                    <Suspense fallback={<h1>Slow Internet.........</h1>}>
+                        <About/>
+                    </Suspense>
+
+                ),
             },
             {
                 path: "/contact",
-                element: <ContactUs/>
+                element: (
+                <Suspense fallback={<h1>Slow Internet.........</h1>}>
+                    <ContactUs/>
+                </Suspense>)
             },
             {
                 path: "/restaurant/:resId",
                 element: <RestaurantMenu/>
+            },
+            {
+                path: "/cart",
+                element: <Cart />
             }
         ]
     }
-    // {
-    //     path:
-    // }
 ])
 
 

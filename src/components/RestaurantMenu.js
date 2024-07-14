@@ -1,45 +1,43 @@
-import { useEffect, useState } from "react";
-import { RESTAURANT_URL_BANGLORE_PART1, RESTAURANT_URL_BANGLORE_PART2, RESTAURANT_URL_BANGLORE_ORG, RESTAURANT_URL_BANGLORE_ORG_FROMWEB } from "../utils/constants";
 import Shimmer from "./Shimmer";
 import { useParams } from "react-router-dom";
+import useRestaurantMenu from "../utils/useRestaurantMenu";
+import RestaurantCardCategory from "./RestaurantCardCategroy ";
+import { useState } from "react";
 
 const RestaurantMenu = () => {
-    const [resInfo, setResInfo] = useState(null);
     const { resId } = useParams();
-    console.log(resId);
-    
+    const resInfo = useRestaurantMenu(resId);
+    const [showIndex, setShowIndex] = useState(null);
+    const [showItems, setShowItems] = useState(false);
 
-    useEffect(() => {
-        fetchMenu();
-    }, []);
 
-    const fetchMenu = async () => {
-        const data = await fetch(RESTAURANT_URL_BANGLORE_PART1 + resId);
-        const jsonData = await data.json();
-        console.log(jsonData);
-        setResInfo(jsonData.data);
-    };
 
     if (resInfo === null) return <Shimmer/>;
     
     const { name }  = resInfo?.cards[2]?.card?.card?.info;
-    console.log(resInfo?.cards[2]?.card?.card?.info);
-    console.log(resInfo?.cards[4]?.groupedCard?.cardGroupMap?.REGULAR?.cards[1].card?.card?.itemCards);
-    console.log(resInfo);
 
-    const itemCardsInfo = resInfo?.cards[4]?.groupedCard?.cardGroupMap?.REGULAR?.cards[1].card?.card?.itemCards;
+    const itemCardsInfo = resInfo?.cards[4]?.groupedCard?.cardGroupMap?.REGULAR?.cards;
+    const cardCategoriesOfTypeItemCategory = itemCardsInfo.filter(c => c?.card?.card?.["@type"] === "type.googleapis.com/swiggy.presentation.food.v2.ItemCategory");
 
-    console.log((itemCardsInfo).map((cardsInfo) => (
-        cardsInfo?.card?.info?.name
-    )));
+
 
     return(
-    <div className="menu">
-        <h1>{name}</h1>
-        <h1>Menu</h1>
-        <ul>
-            {itemCardsInfo.map(cardsInfo => <li key={cardsInfo?.card?.info?.id}>{cardsInfo?.card?.info?.name}</li>)}
-        </ul>
+    <div className="text-center">
+        <h1 className="font-bold m-4 p-4 text-2xl">{name}</h1>
+        <div>
+        {cardCategoriesOfTypeItemCategory.map((cardCategory, index) => 
+        <RestaurantCardCategory
+        data = {cardCategory?.card?.card}
+        key={cardCategory?.card?.card?.title}
+        showIndex = {showIndex}
+        showItems = {index === showIndex ? true : false}
+        indexFromParent = {index}
+        setShowIndices = {(indexValue) => setShowIndex(indexValue)}
+        reverseShowItems = {showItemFlagFromChild => setShowItems(showItemFlagFromChild)}
+        />
+        )}
+        </div>
+
     </div>
     )
 }

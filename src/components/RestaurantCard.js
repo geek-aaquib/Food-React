@@ -12,22 +12,43 @@ const RestaurantCard = (props) => {
     sla
   } = resData?.info;
 
+  let cuisinesMerge = cuisines.join(", ");
+
+  if(cuisinesMerge.length > 30){
+    cuisinesMerge = cuisinesMerge.substr(0,20) + ("...");
+  }
+
   const {deliveryTime} = sla;
 
   return (
-    <div className="res-card">
+    <div className="m-4 p-4 w-[220px] h-[375px] bg-gray-200 hover:bg-gray-300 flex-wrap items-center">
       <img
-        className="res-logo"
+        className="rounded-xl w-[200px] h-[150px]"
         alt="res-logo"
         src={CDN_URL_Latest + cloudinaryImageId}
       />
-      <h3>{name}</h3>
-      <h4>{cuisines.join(", ")}</h4>
+      <h3 className="font-bold py-4 text-lg">{name}</h3>
+      <h4>{cuisinesMerge}</h4>
       <h4>{avgRating} stars</h4>
       <h4>{costForTwo}</h4>
       <h4>{deliveryTime} minutes</h4>
     </div>
   );
+};
+export const withVegNonVegLogo = () => {
+  return(props) => {
+    return(
+      <div>
+        <div className="absolute inline-block w-4 h-4 border-2 border-green-500">
+          <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+          </div>
+        </div>
+
+        <RestaurantCard {...props}/>
+      </div>
+    )
+  }
 };
 
 export default RestaurantCard;
